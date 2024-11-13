@@ -205,14 +205,14 @@ class pocket_cube(object):
                  }
 
     #avoiding_moves is a dictionary from cubies to the list of moves that don't change that cubie.
-    avoiding_moves= {(0,0,0):[mv for mv in move_permutation_dict if mv[0] in ("F","D","R")],
+    avoiding_moves= {(0,0,0):[mv for mv in move_permutation_dict if mv[0] in("F","D","R")],
                      (0,0,1):[mv for mv in move_permutation_dict if mv[0] in("F","D","L")],
-                     (0,1,0):[mv for mv in move_permutation_dict if mv[0] in("F","T","R")],
-                     (0,1,1):[mv for mv in move_permutation_dict if mv[0] in("F","T","L")],
+                     (0,1,0):[mv for mv in move_permutation_dict if mv[0] in("F","U","R")],
+                     (0,1,1):[mv for mv in move_permutation_dict if mv[0] in("F","U","L")],
                      (1,0,0):[mv for mv in move_permutation_dict if mv[0] in("B","D","R")],
                      (1,0,1):[mv for mv in move_permutation_dict if mv[0] in("B","D","L")],
-                     (1,1,0):[mv for mv in move_permutation_dict if mv[0] in("B","T","R")],
-                     (1,1,1):[mv for mv in move_permutation_dict if mv[0] in("B","T","L")]}
+                     (1,1,0):[mv for mv in move_permutation_dict if mv[0] in("B","U","R")],
+                     (1,1,1):[mv for mv in move_permutation_dict if mv[0] in("B","U","L")]}
     
     #cubie_faces_rotations is a dictionary from cubies to {-1,1}. -1 means that rotating the cubie counterclockwise is the same as moving its largest face onto its smallest face.
     #                                                              1 means that rotating the cubie        clockwise is the same as moving its largest face onto its smallest face.
@@ -316,7 +316,14 @@ class pocket_cube(object):
             return -1*self.cubie_faces_rotations[position]
         else:
             return 1*self.cubie_faces_rotations[position]
-        
+    
+    def cubie_twists(self):
+        #returns a list of the twists of cubies in each position.
+        return [self.get_twist_of_cubie(position) for position in itertools.product([0,1],repeat =3)]
+
+    def get_permutation_twist_rep(self):
+        #Returns a pair. The 0th element is the cubie permutation. the 1st element is a list of twists of cubies.
+        return self.cubie_permutation(), self.cubie_twists()
     def correctly_placed_cubies(self, other=None, orientation = False):
         #returns the number of cubies in the correct spot, relative to other. Ignores the orientation if orientation==False
         #By default, other=None, and we take this to mean that we are comparing to the solved cube.
@@ -333,8 +340,7 @@ class pocket_cube(object):
                 face1,face2,face3 = pocket_cube.cubie_faces[cubie]
                 if [self.state[face1],self.state[face2],self.state[face3]]==[other.state[face1],other.state[face2],other.state[face3]]:
                     correctly_placed_cubies.append(cubie)
-        return correctly_placed_cubies
-       
+        return correctly_placed_cubies    
     def get_adjacent_pair_of_correctly_placed_and_oriented_cubies(self,other=None):
         #returns a pair of adjacent cubies that are in the correct spot with the correct orientation if they exist.
         #otherwise returns None.
@@ -407,7 +413,7 @@ class pocket_cube(object):
         #Scrambles the cube. Returns the list of moves used to scramble it.
         scramble_sequence = np.random.choice(list(pocket_cube.move_permutation_dict.keys()), size=length)
         self.perform_move_sequence(scramble_sequence)
-        return scramble_sequence
+        return [str(mv) for mv in scramble_sequence]
     
     #Some neighborhood functions:
     def get_neighbors(self):
